@@ -1,0 +1,27 @@
+{
+  "manifest_version": 3,
+  "name": "JJK Gojo Workspace",
+  "version": "1.0",
+  "permissions": [
+    "activeTab",
+    "scripting"
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "background.jfif",
+        "baby_gojo.png",
+        "gojo_sticker.jfif",
+        "gojo_sticker.png",
+        "email-frame.png"
+      ],
+      "matches": ["https://mail.google.com/*"]
+    }
+  ],
+  "content_scripts": [
+    {
+      "matches": ["https://mail.google.com/*"],
+      "js": ["content.js"]
+    }
+  ]
+}
