@@ -121,12 +121,12 @@ function applyGojoWorkspace() {
             #jjk-inbox-banner {
                 position: fixed !important;
                 top: 4px !important;
-                left: 15vw !important;
-                transform: none !important;
+                left: 57.5vw !important;
+                transform: translateX(-50%) !important;
                 box-sizing: border-box !important;
-                width: calc(78vw - 24px) !important;
-                height: min(11.25vw, 180px) !important;
-                aspect-ratio: auto !important;
+                width: min(55vw, 920px) !important;
+                height: auto !important;
+                aspect-ratio: 1669 / 416 !important;
                 margin: 0 !important;
                 padding: 0 !important;
                 border: 0 !important;
@@ -135,11 +135,43 @@ function applyGojoWorkspace() {
                 z-index: 2147483000 !important;
                 pointer-events: none !important;
             }
+            @property --jjk-banner-border-angle {
+                syntax: "<angle>";
+                inherits: false;
+                initial-value: 0deg;
+            }
+            #jjk-inbox-banner::after {
+                content: "" !important;
+                position: absolute !important;
+                inset: 0 !important;
+                box-sizing: border-box !important;
+                padding: 3px !important;
+                border-radius: 4px !important;
+                background: conic-gradient(
+                    from var(--jjk-banner-border-angle),
+                    transparent 0deg 302deg,
+                    rgba(80, 220, 255, 0.2) 318deg,
+                    #62e5ff 337deg,
+                    #fff 346deg,
+                    #62e5ff 355deg,
+                    transparent 360deg
+                ) !important;
+                -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0) !important;
+                -webkit-mask-composite: xor !important;
+                mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0) !important;
+                mask-composite: exclude !important;
+                filter: drop-shadow(0 0 8px rgba(75, 220, 255, 0.9)) !important;
+                animation: jjk-banner-border-orbit 3s linear infinite !important;
+                pointer-events: none !important;
+            }
+            @keyframes jjk-banner-border-orbit {
+                to { --jjk-banner-border-angle: 360deg; }
+            }
             #jjk-inbox-banner .jjk-inbox-banner-art {
                 display: block !important;
                 width: 100% !important;
                 height: 100% !important;
-                object-fit: fill !important;
+                object-fit: contain !important;
             }
             #jjk-inbox-banner .jjk-banner-corner-glint {
                 position: absolute !important;
@@ -163,9 +195,7 @@ function applyGojoWorkspace() {
                 #jjk-inbox-banner {
                     left: 50% !important;
                     transform: translateX(-50%) !important;
-                    width: calc(100vw - 20px) !important;
-                    height: auto !important;
-                    aspect-ratio: 1668 / 414 !important;
+                    width: calc(100vw - 48px) !important;
                 }
             }
             input[aria-label*="Search"],
@@ -404,12 +434,12 @@ function applyGojoWorkspace() {
         el.style.setProperty('background-attachment', 'fixed', 'important');
     });
 
-    const inboxTable = Array.from(document.querySelectorAll('[role="main"] table'))
-        .find(table => table.querySelector('tr.zA'));
-    if (inboxTable) {
+    const inboxTables = Array.from(document.querySelectorAll('[role="main"] table'))
+        .filter(table => table.querySelector('tr.zA'));
+    inboxTables.forEach(inboxTable => {
         inboxTable.style.setProperty('border-collapse', 'separate', 'important');
         inboxTable.style.setProperty('border-spacing', '0 14px', 'important');
-    }
+    });
 
     let banner = document.getElementById('jjk-inbox-banner');
     if (!banner) {
@@ -443,7 +473,7 @@ function applyGojoWorkspace() {
     }
 
     // 2. Email Row Badges
-    const emailRows = inboxTable?.querySelectorAll('tr.zA') || [];
+    const emailRows = document.querySelectorAll('[role="main"] tr.zA');
     emailRows.forEach(row => {
         const rowText = row.innerText.toLowerCase();
         row.classList.add('jjk-framed-email');
@@ -474,6 +504,11 @@ function applyGojoWorkspace() {
             badge.style.visibility = composeOpen ? 'hidden' : 'visible';
         });
 
+        const subjectContainer = row.querySelector('.y6') || row.querySelector('td:nth-last-child(2)');
+        if (!subjectContainer) {
+            return;
+        }
+
         let badge = row.querySelector('.jjk-badge');
         if (!badge) {
             badge = document.createElement('span');
@@ -483,31 +518,61 @@ function applyGojoWorkspace() {
             badge.style.fontSize = "9px";
             badge.style.fontWeight = "900";
             badge.style.borderRadius = "4px";
-
-            const subjectContainer = row.querySelector('.y6');
-            if (subjectContainer) {
-                subjectContainer.appendChild(badge);
-            }
+        }
+        if (badge.parentElement !== subjectContainer) {
+            subjectContainer.appendChild(badge);
         }
 
         const textContent = rowText;
         if (textContent.includes('unsubscribe') || textContent.includes('offer') || textContent.includes('promo')) {
-            badge.className = 'jjk-badge jjk-badge-cyan';
-            badge.innerText = "⚡ INFINITE VOID";
-            badge.style.backgroundColor = "#1e1b4b";
-            badge.style.color = "#38bdf8";
+            if (badge.className !== 'jjk-badge jjk-badge-cyan') badge.className = 'jjk-badge jjk-badge-cyan';
+            if (badge.textContent !== '⚡ INFINITE VOID') badge.textContent = '⚡ INFINITE VOID';
+            if (badge.style.backgroundColor !== 'rgb(30, 27, 75)') badge.style.backgroundColor = '#1e1b4b';
+            if (badge.style.color !== 'rgb(56, 189, 248)') badge.style.color = '#38bdf8';
         } else if (textContent.includes('security') || textContent.includes('alert') || textContent.includes('urgent')) {
-            badge.className = 'jjk-badge jjk-badge-violet';
-            badge.innerText = "🔥 CURSED ENERGY";
-            badge.style.backgroundColor = "#4c1d95";
-            badge.style.color = "#e9d5ff";
+            if (badge.className !== 'jjk-badge jjk-badge-violet') badge.className = 'jjk-badge jjk-badge-violet';
+            if (badge.textContent !== '🔥 CURSED ENERGY') badge.textContent = '🔥 CURSED ENERGY';
+            if (badge.style.backgroundColor !== 'rgb(76, 29, 149)') badge.style.backgroundColor = '#4c1d95';
+            if (badge.style.color !== 'rgb(233, 213, 255)') badge.style.color = '#e9d5ff';
         } else {
-            badge.className = 'jjk-badge jjk-badge-violet';
-            badge.innerText = "👁️ SIX EYES";
-            badge.style.backgroundColor = "#4c1d95";
-            badge.style.color = "#e9d5ff";
+            if (badge.className !== 'jjk-badge jjk-badge-violet') badge.className = 'jjk-badge jjk-badge-violet';
+            if (badge.textContent !== '👁️ SIX EYES') badge.textContent = '👁️ SIX EYES';
+            if (badge.style.backgroundColor !== 'rgb(76, 29, 149)') badge.style.backgroundColor = '#4c1d95';
+            if (badge.style.color !== 'rgb(233, 213, 255)') badge.style.color = '#e9d5ff';
         }
     });
 }
 
-setInterval(applyGojoWorkspace, 1000);
+let workspaceUpdateScheduled = false;
+const workspaceObserver = new MutationObserver(mutations => {
+    const hasPageChanges = mutations.some(mutation => {
+        const target = mutation.target.nodeType === Node.ELEMENT_NODE
+            ? mutation.target
+            : mutation.target.parentElement;
+        if (!target || target.closest('#jjk-inbox-banner, #jjk-glass-theme, .jjk-badge, .jjk-email-frame')) {
+            return false;
+        }
+        if (mutation.type === 'attributes') {
+            return Boolean(target.closest('tr.zA, tr.jjk-framed-email, [role="dialog"], [aria-label*="Compose"], .nH.bkK, .nH.Pf'));
+        }
+        return Boolean(target.closest('[role="main"], tr.zA, tr.jjk-framed-email, [role="dialog"], [aria-label*="Compose"]'));
+    });
+    if (!hasPageChanges || workspaceUpdateScheduled) {
+        return;
+    }
+
+    workspaceUpdateScheduled = true;
+    setTimeout(() => {
+        workspaceUpdateScheduled = false;
+        applyGojoWorkspace();
+    }, 150);
+});
+
+applyGojoWorkspace();
+workspaceObserver.observe(document.body, {
+    attributes: true,
+    attributeFilter: ['class', 'aria-label', 'role'],
+    childList: true,
+    characterData: true,
+    subtree: true
+});
